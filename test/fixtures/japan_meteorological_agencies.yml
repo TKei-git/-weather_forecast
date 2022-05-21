@@ -1,0 +1,33 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  date: 2022-05-21 05:30:18
+  weather: MyString
+  wind: MyString
+  wave: MyString
+  temperature_min: 1.5
+  temperature_max: 1.5
+  chance_of_rain_06: 1
+  chance_of_rain_12: 1
+  chance_of_rain_18: 1
+  chance_of_rain_24: 1
+  provider: MyString
+  area: MyString
+  prefecture: MyString
+  district: MyString
+
+two:
+  date: 2022-05-21 05:30:18
+  weather: MyString
+  wind: MyString
+  wave: MyString
+  temperature_min: 1.5
+  temperature_max: 1.5
+  chance_of_rain_06: 1
+  chance_of_rain_12: 1
+  chance_of_rain_18: 1
+  chance_of_rain_24: 1
+  provider: MyString
+  area: MyString
+  prefecture: MyString
+  district: MyString

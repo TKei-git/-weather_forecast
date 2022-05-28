@@ -3,77 +3,99 @@ class ApplicationController < ActionController::Base
     require 'net/http'
 
     def sample
-        dt = Date.current
 
         uri = URI('https://www.jma.go.jp/bosai/forecast/data/forecast/130000.json')
         res = Net::HTTP.get_response(uri)
         resbody = JSON.parse(res.body) if res.is_a?(Net::HTTPSuccess)
 
-        #今日と明日の天気予報をハッシュ化
-        dayDefines = resbody[0]["timeSeries"][0]["timeDefines"]
-        weathers = resbody[0]["timeSeries"][0]["areas"].find {|n| n["area"]["name"] == "東京地方" }["weathers"]
-        rainTimeDefines = resbody[0]["timeSeries"][1]["timeDefines"]
-        rainyPercent = resbody[0]["timeSeries"][1]["areas"].find {|n| n["area"]["name"] == "東京地方" }["pops"]
-        tempTimeDefines = resbody[0]["timeSeries"][2]["timeDefines"]
-        temps = resbody[0]["timeSeries"][2]["areas"].find {|n| n["area"]["name"] == "東京" }["temps"]
+        resdetail = resbody[0]["timeSeries"]
+        resweek = resbody[1]["timeSeries"]
 
-        weatherHash = {}
+        #直近（2～3日分）の天気予報の各詳細配列を抽出
+        dayDefines =      resdetail[0]["timeDefines"]
+        targetArea =      resdetail[0]["areas"].find {|n| n["area"]["code"] == "130010" }
+        weathers =        targetArea["weathers"]
+        winds =           targetArea["winds"]
+        waves =           targetArea["waves"]
+
+        rainTimeDefines = resdetail[1]["timeDefines"]
+        targetArea =      resdetail[1]["areas"].find {|n| n["area"]["code"] == "130010" }
+        rainyPercent =    targetArea["pops"]
+
+        tempTimeDefines = resdetail[2]["timeDefines"]
+        targetArea =      resdetail[2]["areas"].find {|n| n["area"]["code"] == "44132" }
+        temps =           targetArea["temps"]
+
         rainyHash = {}
         tempHash = {}
-
-        for num in 0..dayDefines.length-1 do
-            weatherHash[dayDefines[num].slice(0..9)] = weathers[num]
-        end
-
-        for num in 0..rainTimeDefines.length-1 do
-            rainyHash[rainTimeDefines[num].slice(0..18)] = rainyPercent[num]
-        end
-
-        for num in 0..tempTimeDefines.length-1 do
-            tempHash[tempTimeDefines[num].slice(0..18)] = temps[num]
-        end
         
-        #今日から1週間の天気予報を配列化
-        weekWeathers = resbody[1]["timeSeries"][0]["areas"].find {|n| n["area"]["name"] == "東京地方" }["weatherCodes"]
-        weekRainyPercent = resbody[1]["timeSeries"][0]["areas"].find {|n| n["area"]["name"] == "東京地方" }["pops"]
-        weekMinTemps = resbody[1]["timeSeries"][1]["areas"].find {|n| n["area"]["name"] == "東京" }["tempsMin"]
-        weekMaxTemps = resbody[1]["timeSeries"][1]["areas"].find {|n| n["area"]["name"] == "東京" }["tempsMax"]
+        rainTimeDefines.each_with_index do |time, i|
+            rainyHash[time] = rainyPercent[i]
+        end
 
-        #DBから今日以降のレコード取得
-        forecasts = JapanMeteorologicalAgency.where(district: "東京地方")
+        tempTimeDefines.each_with_index do |time, i|
+            tempHash[time] = temps[i]
+        end
+
+        dayDefines.each_with_index do |day, i|
+            dt = Date.parse(day)
+            jma = JmaDetail.new(
+                date:              dt,
+                area_code:         "130010",
+                weather:           weathers[i],
+                wind:              winds[i],
+                wave:              waves[i],
+                chance_of_rain_06: rainyHash[(dt).strftime("%Y-%m-%d") << "T00:00:00+09:00"],
+                chance_of_rain_12: rainyHash[(dt).strftime("%Y-%m-%d") << "T06:00:00+09:00"],
+                chance_of_rain_18: rainyHash[(dt).strftime("%Y-%m-%d") << "T12:00:00+09:00"],
+                chance_of_rain_24: rainyHash[(dt).strftime("%Y-%m-%d") << "T18:00:00+09:00"],
+                temperature_min:   tempHash[(dt).strftime("%Y-%m-%d") << "T00:00:00+09:00"],
+                temperature_max:   tempHash[(dt).strftime("%Y-%m-%d") << "T09:00:00+09:00"]
+            )
+
+        end
 
         jmaArray = []
 
+        #今日から1週間の天気予報を配列化
+        dayDefines =    resweek[0]["timeDefines"]
+        targetArea =    resweek[0]["areas"].find {|n| n["area"]["code"] == "130010" }
+        weathers =      targetArea["weatherCodes"]
+        rainyPercent =  targetArea["pops"]
+        reliabilities = targetArea["reliabilities"]
+
+        targetArea =    resweek[1]["areas"].find {|n| n["area"]["code"] == "44132" }
+        minTemps =      targetArea["tempsMin"]
+        maxTemps =      targetArea["tempsMax"]
+
+        dayDefines.each_with_index do |day, i|
+            dt = Date.parse(day)
+            jma = JmaWeek.new(
+                date:            dt,
+                area_code:       "130010",
+                weather:         weathers[i],
+                chance_of_rain:  rainyPercent[i],
+                reliability:   reliabilities[i],
+                temperature_min: minTemps[i],
+                temperature_max: maxTemps[i]
+            )
+            jmaArray.push(jma)
+        end
+
+        render html: jmaArray
+    end
+
+=begin
+        
+
+
+        #DBから今日以降のレコード取得
+        forecasts = JapanMeteorologicalAgency.where(district: "東京地方", date: dt)
+
+        
+    
         #週間ループ
         for num in 0..6 do
-
-            #今日と明日
-            if num < 2
-                #レコードがあれば更新、なければ作成
-                if forecasts.find {|n| n["date"] == (dt + num) } == nil
-                    jma = JapanMeteorologicalAgency.new(
-                        date: dt + num,
-                        weather: weatherHash[(dt + num).strftime("%Y-%m-%d")],
-                        temperature_min: tempHash[(dt + num).strftime("%Y-%m-%d") << "T00:00:00"],
-                        temperature_max: tempHash[(dt + num).strftime("%Y-%m-%d") << "T09:00:00"],
-                        chance_of_rain_06: rainyHash[(dt + num).strftime("%Y-%m-%d") << "T00:00:00"],
-                        chance_of_rain_12: rainyHash[(dt + num).strftime("%Y-%m-%d") << "T06:00:00"],
-                        chance_of_rain_18: rainyHash[(dt + num).strftime("%Y-%m-%d") << "T12:00:00"],
-                        chance_of_rain_24: rainyHash[(dt + num).strftime("%Y-%m-%d") << "T18:00:00"],
-                        district: "東京地方"
-                    )
-                    jmaArray.push(jma)
-                else
-                    forecasts.find {|n| n["date"] == dt }.update(
-                        weather: weatherHash[(dt + num).strftime("%Y-%m-%d")],
-                        temperature_min: tempHash[(dt + num).strftime("%Y-%m-%d") << "T00:00:00"],
-                        temperature_max: tempHash[(dt + num).strftime("%Y-%m-%d") << "T09:00:00"],
-                        chance_of_rain_06: rainyHash[(dt + num).strftime("%Y-%m-%d") << "T00:00:00"],
-                        chance_of_rain_12: rainyHash[(dt + num).strftime("%Y-%m-%d") << "T06:00:00"],
-                        chance_of_rain_18: rainyHash[(dt + num).strftime("%Y-%m-%d") << "T12:00:00"],
-                        chance_of_rain_24: rainyHash[(dt + num).strftime("%Y-%m-%d") << "T18:00:00"],
-                    )
-                end
 
             #明後日以降 
             else
@@ -99,77 +121,8 @@ class ApplicationController < ActionController::Base
             end
         end
 
-        render html: jmaArray
-    end
-
-=begin
-        jmaTomorrow = JapanMeteorologicalAgency.new(
-            date: dt +1,
-            weather: weatherHash[(dt+1).strftime("%Y-%m-%d")],
-            temperature_min: tempHash[(dt+1).strftime("%Y-%m-%d") << "T00:00:00"],
-            temperature_max: tempHash[(dt+1).strftime("%Y-%m-%d") << "T09:00:00"],
-            chance_of_rain_06: rainyHash[(dt+1).strftime("%Y-%m-%d") << "T00:00:00"],
-            chance_of_rain_12: rainyHash[(dt+1).strftime("%Y-%m-%d") << "T06:00:00"],
-            chance_of_rain_18: rainyHash[(dt+1).strftime("%Y-%m-%d") << "T12:00:00"],
-            chance_of_rain_24: rainyHash[(dt+1).strftime("%Y-%m-%d") << "T18:00:00"],
-            district: "東京地方"
-        )
-
-        hash["forecasts"].each do |h|
-            jma = JapanMeteorologicalAgency.new(
-                date: h["date"],
-                weather: h["detail"]["weather"],
-                wind: h["detail"]["wind"],
-                wave: h["detail"]["wave"],
-                temperature_min: h["temperature"]["min"]["celsius"],
-                temperature_max: h["temperature"]["max"]["celsius"],
-                chance_of_rain_06: h["chanceOfRain"]["T00_06"],
-                chance_of_rain_12: h["chanceOfRain"]["T06_12"],
-                chance_of_rain_18: h["chanceOfRain"]["T12_18"],
-                chance_of_rain_24: h["chanceOfRain"]["T18_24"],
-                provider: "気象庁",
-                area: hash["location"]["area"],
-                prefecture: hash["location"]["prefecture"],
-                district: hash["location"]["district"]
-            )
-
-            forecast = JapanMeteorologicalAgency.where(date: jma["date"], district: jma["district"]) 
-
-            if forecast.length == 0
-                jma.save
-            elsif forecast.length == 1
-                forecast.update(
-                    weather: jma["weather"],
-                    wind: jma["wind"],
-                    wave: jma["wave"],
-                    temperature_min: jma["temperature_min"],
-                    temperature_max: jma["temperature_max"],
-                    chance_of_rain_06: jma["chance_of_rain_06"],
-                    chance_of_rain_12: jma["chance_of_rain_12"],
-                    chance_of_rain_18: jma["chance_of_rain_18"],
-                    chance_of_rain_24: jma["chance_of_rain_24"],
-                )
-            end
-        end
 
 
-        [
-            wdate,
-            weather,
-            wind,
-            wave,
-            temperature_min,
-            temperature_max,
-            chance_of_rain_06,
-            chance_of_rain_12,
-            chance_of_rain_18,
-            chance_of_rain_24,
-            provider,
-            area,
-            prefecture,
-            district
-        ]
-        forecast = JapanMeteorologicalAgency.find_by(district: "筑後地方")
 =end
     
 end

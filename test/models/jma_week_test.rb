@@ -1,6 +1,6 @@
 require "test_helper"
 
-class JapanMeteorologicalAgencyTest < ActiveSupport::TestCase
+class JmaWeekTest < ActiveSupport::TestCase
   # test "the truth" do
   #   assert true
   # end

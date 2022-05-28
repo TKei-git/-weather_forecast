@@ -1,0 +1,2 @@
+class JmaWeek < ApplicationRecord
+end

@@ -1,0 +1,2 @@
+class JmaDetail < ApplicationRecord
+end

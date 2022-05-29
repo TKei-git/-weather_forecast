@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_05_28_030802) do
+ActiveRecord::Schema[7.0].define(version: 2022_05_28_231647) do
   create_table "japan_meteorological_agencies", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.date "date"
     t.string "weather"
@@ -43,6 +43,17 @@ ActiveRecord::Schema[7.0].define(version: 2022_05_28_030802) do
     t.integer "chance_of_rain_24"
     t.float "temperature_max"
     t.float "temperature_min"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "jma_weather_codes", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "weather_code"
+    t.string "day_image"
+    t.string "night_image"
+    t.string "about_code"
+    t.string "weather"
+    t.string "weatehr_english"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end

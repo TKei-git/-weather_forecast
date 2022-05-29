@@ -1,0 +1,2 @@
+class JmaWeatherCode < ApplicationRecord
+end

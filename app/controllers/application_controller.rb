@@ -7,19 +7,19 @@ class ApplicationController < ActionController::Base
         res = Net::HTTP.get_response(uri)
         resbody = JSON.parse(res.body) if res.is_a?(Net::HTTPSuccess)
 
-        resdetail = resbody[0]["timeSeries"]
         resweek = resbody[1]["timeSeries"]
 
-        resultDetail = JmaDetail.Create_jma_detail(resdetail, "130010", "44132")
-        resultWeek = JmaWeek.Create_jma_week(resweek, "130010", "44132")
+        detailData = JmaDetail.shaping_data(resbody, "130010", "44132")
+=begin
+        resultDetail = JmaDetail.create_or_update_records(detailData)
 
         resultDetail = JmaDetail.where(date: Date.current..)
         resultWeek = JmaWeek.where(date: Date.current..)
 
-        render html: [resultDetail,resultWeek]
-=begin
 
 =end
+        render html: detailData
+
     end
     
 end

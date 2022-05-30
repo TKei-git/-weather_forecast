@@ -26,23 +26,21 @@ class JmaDetail < ApplicationRecord
     # レコード作成or更新
     def self.create_or_update_records(array)
         result = []
-
         array.each do |hash|
-            jma = JmaDetail.find_or_create_by(date: hash["date"], area_code: hash["areaCode"])
+            jma = JmaDetail.find_or_create_by(date: hash[:date], area_code: hash[:area_code])
             r = jma.update(
-                weather:           hash["weather"],
-                wind:              hash["wind"],
-                wave:              hash["wave"],
-                chance_of_rain_06: hash["chance_of_rain_06"],
-                chance_of_rain_12: hash["chance_of_rain_12"],
-                chance_of_rain_18: hash["chance_of_rain_18"],
-                chance_of_rain_24: hash["chance_of_rain_24"],
-                temperature_min:   hash["temperature_min"],
-                temperature_max:   hash["temperature_max"]
+                weather:           hash[:weather],
+                wind:              hash[:wind],
+                wave:              hash[:wave],
+                chance_of_rain_06: hash[:chance_of_rain_06],
+                chance_of_rain_12: hash[:chance_of_rain_12],
+                chance_of_rain_18: hash[:chance_of_rain_18],
+                chance_of_rain_24: hash[:chance_of_rain_24],
+                temperature_min:   hash[:temperature_min],
+                temperature_max:   hash[:temperature_max]
             )
             result.push(r)
         end
-
         return result
     end
 
@@ -76,9 +74,9 @@ class JmaDetail < ApplicationRecord
                 {
                     date:              dt,
                     area_code:         code,
-                    weather:           value["weather"],
-                    wind:              value["wind"],
-                    wave:              value["wave"],
+                    weather:           value[:weather],
+                    wind:              value[:wind],
+                    wave:              value[:wave],
                     chance_of_rain_06: rainyHash[(dt).strftime("%Y-%m-%d") << "T00:00:00+09:00"],
                     chance_of_rain_12: rainyHash[(dt).strftime("%Y-%m-%d") << "T06:00:00+09:00"],
                     chance_of_rain_18: rainyHash[(dt).strftime("%Y-%m-%d") << "T12:00:00+09:00"],

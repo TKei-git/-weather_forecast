@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>local forcast</title>
+    </head>
+    <body>
+        <h1>東京の天気予報</h1>
+        <h2>詳細予報</h2>
+        <% @jmaDetail.each do |jd| %>
+            日付:<%= jd.date %><br>
+            天気:<%= jd.weather %><br>
+            降水(0-6):<%= jd.chance_of_rain_06 %><br>
+            降水(6-12):<%= jd.chance_of_rain_12 %><br>
+            降水(12-18):<%= jd.chance_of_rain_18 %><br>
+            降水(18-24):<%= jd.chance_of_rain_24 %><br>
+            最高気温:<%= jd.temperature_max %><br>
+            最低気温:<%= jd.temperature_min %><br>
+            <br>
+        <% end %>
+
+        <h2>週間予報</h2>
+        <% @jmaWeek.each do |jw| %>
+            日付:<%= jw.date %><br>
+            天気:<%= jw.weather %><br>
+            降水:<%= jw.chance_of_rain %><br>
+            信憑性:<%= jw.reliability %><br>
+            最高気温:<%= jw.temperature_max %><br>
+            最低気温:<%= jw.temperature_min %><br>
+            <br>
+        <% end %>
+    </body>
+</html>

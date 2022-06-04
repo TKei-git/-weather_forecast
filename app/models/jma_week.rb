@@ -56,3 +56,5 @@ class JmaWeek < ApplicationRecord
         return array
     end
 end
+
+

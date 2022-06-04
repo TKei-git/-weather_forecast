@@ -3,6 +3,6 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   # root "articles#index"
-  root 'application#sample'
+  root 'local_weather_forecast#index'
 
 end

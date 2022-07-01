@@ -3,6 +3,11 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   # root "articles#index"
-  root 'local_weather_forecast#index'
+  root 'top#home'
+
+  #get  'forecasts',  to: 'forecasts#show'
+  get 'forecasts',  to: 'forecasts#update'
+
+  # get  '/api/v1/jma/district/detail', to: 'local_weather_forecast#index'
 
 end

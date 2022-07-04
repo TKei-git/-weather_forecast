@@ -19,5 +19,5 @@ set :output, "#{Rails.root}/log/cron.log"
 
 # 一時間毎に実行
 every 1.day, at: '5:30 am' do
-  rake 'weathers:get_data', :environment => :development
+  rake 'update_data_task:get_and_update_data', :environment => :development
 end

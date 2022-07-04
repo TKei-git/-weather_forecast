@@ -50,7 +50,6 @@ class JapanMeteorologicalAgencyService
     def update_daily_forecasts
         body = get_forecasts("https://www.jma.go.jp/bosai/forecast/data/forecast/#{@area_code}.json")
         
-        #detailed_forecasts = convert_to_detailed_forecasts(body)
         daily_forecasts = update_records(body)
         daily_detailed_forecasts = update_detailed_records(body)
         return [daily_forecasts, daily_detailed_forecasts]
@@ -100,7 +99,9 @@ class JapanMeteorologicalAgencyService
         array_of_rain        = body[0]["timeSeries"][1]["areas"].find {|n| n["area"]["code"] == @city_code }["pops"]
         array_of_temperature = body[0]["timeSeries"][2]["areas"].find {|n| n["area"]["code"] == @temp_code }["temps"]
 
+        # 6時間ごとの降水確率のハッシュ作成（キーは時間）
         rain_hash           = make_hash(times_of_rain, array_of_rain)
+        # 最高/最低気温のハッシュ作成（キーは時間、T00:00が最低、T09:00が最高）
         temperature_hash    = make_hash(times_of_temperature, array_of_temperature)
         weather_code_master = JmaWeatherCode.all
 

@@ -1,0 +1,2 @@
+class JmaDailyForecast < ApplicationRecord
+end

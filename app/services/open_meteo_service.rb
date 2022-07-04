@@ -23,8 +23,8 @@ class OpenMeteoService
 
     def update_records(obj)
         results = []
-        (0..6).each do |i|
-            record = OmDailyForecast.find_or_create_by(time: Time.at(obj["time"][i]).in_time_zone('Tokyo').to_date)
+        obj["time"].each_with_index do |time, i|
+            record = OmDailyForecast.find_or_create_by(time: Time.at(time).in_time_zone('Tokyo').to_date)
             r = record.update(
                 sunrise:                    Time.at(obj["sunrise"][i]).in_time_zone('Tokyo').to_time,
                 sunset:                     Time.at(obj["sunset"][i]).in_time_zone('Tokyo').to_time,

@@ -2,8 +2,10 @@ class JapanMeteorologicalAgencyService
 
     require 'net/http'
 
-    def initialize(code)
-        @area_code = code
+    def initialize
+        @area_code = "130000"
+        @city_code = "130010"
+        @temp_code = "44132"
     end
 
     def pull_recently
@@ -48,10 +50,10 @@ class JapanMeteorologicalAgencyService
     def update_daily_forecasts
         body = get_forecasts("https://www.jma.go.jp/bosai/forecast/data/forecast/#{@area_code}.json")
         
-        detailed_forecasts = convert_to_detailed_forecasts(body, "130010", "44132")
-        weekly_forecasts   = convert_to_weekly_forecasts(body, "130010", "44132")
-
-        return [detailed_forecasts, weekly_forecasts]
+        #detailed_forecasts = convert_to_detailed_forecasts(body)
+        daily_forecasts = update_records(body)
+        daily_detailed_forecasts = update_detailed_records(body)
+        return [daily_forecasts, daily_detailed_forecasts]
     end
 
     private
@@ -61,26 +63,54 @@ class JapanMeteorologicalAgencyService
         body = JSON.parse(response.body) if response.is_a?(Net::HTTPSuccess)
     end
 
-    def convert_to_detailed_forecasts(body, city_code, temperature_code)
+    def update_records(body)
+        times                 = body[1]["timeSeries"][0]["timeDefines"]
+        object_of_weather     = body[1]["timeSeries"][0]["areas"].find {|n| n["area"]["code"] == @city_code }
+        object_of_temperature = body[1]["timeSeries"][1]["areas"].find {|n| n["area"]["code"] == @temp_code }
+
+        weather_code_master = JmaWeatherCode.all
+
+        results = []
+        times.each_with_index do |time, i|
+            record = JmaDailyForecast.find_or_create_by(date: Date.parse(time))
+            r = record.update(
+                {
+                    weather_code:          object_of_weather["weatherCodes"][i],
+                    weather:               weather_code_master.find_by(weather_code: object_of_weather["weatherCodes"][i])["weather"],
+                    chance_of_rain:        object_of_weather["pops"][i],
+                    reliability:           object_of_weather["reliabilities"][i],
+                    temperature_min:       object_of_temperature["tempsMin"][i],
+                    temperature_min_upper: object_of_temperature["tempsMinUpper"][i],
+                    temperature_min_lower: object_of_temperature["tempsMinLower"][i],
+                    temperature_max:       object_of_temperature["tempsMax"][i],
+                    temperature_max_upper: object_of_temperature["tempsMaxUpper"][i],
+                    temperature_max_lower: object_of_temperature["tempsMaxLower"][i]  
+                }
+            )
+            results.push(r)
+        end
+        return results
+    end
+
+    def update_detailed_records(body)
         times_of_weather     = body[0]["timeSeries"][0]["timeDefines"]
         times_of_rain        = body[0]["timeSeries"][1]["timeDefines"]
         times_of_temperature = body[0]["timeSeries"][2]["timeDefines"]
-        object_of_weather    = body[0]["timeSeries"][0]["areas"].find {|n| n["area"]["code"] == city_code }
-        array_of_rain        = body[0]["timeSeries"][1]["areas"].find {|n| n["area"]["code"] == city_code }["pops"]
-        array_of_temperature = body[0]["timeSeries"][2]["areas"].find {|n| n["area"]["code"] == temperature_code }["temps"]
+        object_of_weather    = body[0]["timeSeries"][0]["areas"].find {|n| n["area"]["code"] == @city_code }
+        array_of_rain        = body[0]["timeSeries"][1]["areas"].find {|n| n["area"]["code"] == @city_code }["pops"]
+        array_of_temperature = body[0]["timeSeries"][2]["areas"].find {|n| n["area"]["code"] == @temp_code }["temps"]
 
-        rain_hash        = make_hash(times_of_rain, array_of_rain)
-        temperature_hash = make_hash(times_of_temperature, array_of_temperature)
-
+        rain_hash           = make_hash(times_of_rain, array_of_rain)
+        temperature_hash    = make_hash(times_of_temperature, array_of_temperature)
         weather_code_master = JmaWeatherCode.all
 
         results = []
         times_of_weather.each_with_index do |time, i|
             dt = Date.parse(time)
-            results.push(
+            record = JmaDailyDetailedForecast.find_or_create_by(date: dt)
+            r = record.update(
                 {
-                    date:              dt,
-                    area_code:         city_code,
+                    weather_code:      object_of_weather["weatherCodes"][i],
                     weather:           weather_code_master.find_by(weather_code: object_of_weather["weatherCodes"][i])["weather"],
                     detailed_weather:  object_of_weather["weathers"][i],
                     wind:              object_of_weather["winds"][i],
@@ -93,36 +123,7 @@ class JapanMeteorologicalAgencyService
                     temperature_max:   temperature_hash[(dt).strftime("%Y-%m-%d") << "T09:00:00+09:00"]
                 }
             )
-        end
-        return results
-    end
-
-    def convert_to_weekly_forecasts(body, city_code, temperature_code)
-        times_of_weather      = body[1]["timeSeries"][0]["timeDefines"]
-        times_of_temperature  = body[1]["timeSeries"][1]["timeDefines"]
-        object_of_weather     = body[1]["timeSeries"][0]["areas"].find {|n| n["area"]["code"] == city_code }
-        object_of_temperature = body[1]["timeSeries"][1]["areas"].find {|n| n["area"]["code"] == temperature_code }
-
-        weather_code_master = JmaWeatherCode.all
-
-        results = []
-        times_of_weather.each_with_index do |time, i|
-            dt = Date.parse(time)
-            results.push(
-                {
-                    date:                  dt,
-                    area_code:             city_code,
-                    weather:               weather_code_master.find_by(weather_code: object_of_weather["weatherCodes"][i])["weather"],
-                    chance_of_rain:        object_of_weather["pops"][i],
-                    reliability:           object_of_weather["reliabilities"][i],
-                    temperature_min:       object_of_temperature["tempsMin"][i],
-                    temperature_min_upper: object_of_temperature["tempsMinUpper"][i],
-                    temperature_min_lower: object_of_temperature["tempsMinLower"][i],
-                    temperature_max:       object_of_temperature["tempsMax"][i],
-                    temperature_max_upper: object_of_temperature["tempsMaxUpper"][i],
-                    temperature_max_lower: object_of_temperature["tempsMaxLower"][i]  
-                }
-            )
+            results.push(r)
         end
         return results
     end

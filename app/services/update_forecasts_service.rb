@@ -1,7 +1,7 @@
 class UpdateForecastsService
 
-    def initialize(code)
-        @area_code = code
+    def initialize
+
     end
 
     def update_data
@@ -9,7 +9,7 @@ class UpdateForecastsService
         [
             {
                 service_name: "気象庁",
-                data_obj: JapanMeteorologicalAgencyService.new(@area_code)
+                data_obj: JapanMeteorologicalAgencyService.new
             },
             {
                 service_name: "OpenWeatherMap",

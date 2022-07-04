@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_07_04_060535) do
+ActiveRecord::Schema[7.0].define(version: 2022_07_04_083045) do
   create_table "japan_meteorological_agencies", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.date "date"
     t.string "weather"
@@ -29,6 +29,39 @@ ActiveRecord::Schema[7.0].define(version: 2022_07_04_060535) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "chance_of_rain"
+  end
+
+  create_table "jma_daily_detailed_forecasts", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.date "date"
+    t.string "weather_code"
+    t.string "weather"
+    t.string "detailed_weather"
+    t.string "wind"
+    t.string "wave"
+    t.float "chance_of_rain_06"
+    t.float "chance_of_rain_12"
+    t.float "chance_of_rain_18"
+    t.float "chance_of_rain_24"
+    t.float "temperature_min"
+    t.float "temperature_max"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "jma_daily_forecasts", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.date "date"
+    t.string "weather_code"
+    t.string "weather"
+    t.float "chance_of_rain"
+    t.string "reliability"
+    t.float "temperature_min"
+    t.float "temperature_min_upper"
+    t.float "temperature_min_lower"
+    t.float "temperature_max"
+    t.float "temperature_max_upper"
+    t.float "temperature_max_lower"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "jma_details", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|

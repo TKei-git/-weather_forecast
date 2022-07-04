@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_05_28_231647) do
+ActiveRecord::Schema[7.0].define(version: 2022_07_04_013033) do
   create_table "japan_meteorological_agencies", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.date "date"
     t.string "weather"
@@ -66,6 +66,41 @@ ActiveRecord::Schema[7.0].define(version: 2022_05_28_231647) do
     t.string "reliability"
     t.float "temperature_max"
     t.float "temperature_min"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "owm_daily_forecasts", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.date "dt"
+    t.time "sunrise"
+    t.time "sunset"
+    t.time "moonrise"
+    t.time "moonset"
+    t.float "moon_phase"
+    t.float "temp_day"
+    t.float "temp_min"
+    t.float "temp_max"
+    t.float "temp_night"
+    t.float "temp_eve"
+    t.float "temp_morn"
+    t.float "feels_like_day"
+    t.float "feels_like_night"
+    t.float "feels_like_eve"
+    t.float "feels_like_morn"
+    t.integer "pressure"
+    t.integer "humidity"
+    t.float "dew_point"
+    t.float "wind_speed"
+    t.integer "wind_deg"
+    t.float "wind_gust"
+    t.integer "weather_id"
+    t.string "weather_main"
+    t.string "weather_description"
+    t.string "weather_icon"
+    t.integer "clouds"
+    t.float "pop"
+    t.float "rain"
+    t.float "uvi"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end

@@ -1,0 +1,2 @@
+class OwmDailyForecast < ApplicationRecord
+end

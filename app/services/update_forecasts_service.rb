@@ -12,11 +12,11 @@ class UpdateForecastsService
                 data_obj: JapanMeteorologicalAgencyService.new(@area_code)
             },
             {
-                service_name: "ウェザーニュース",
-                data_obj: JapanMeteorologicalAgencyService.new(@area_code)
+                service_name: "OpenWeatherMap",
+                data_obj: OpenWeatherMapService.new
             }
         ].each do | obj |
-            results[obj[:service_name]] = obj[:data_obj].update
+            results[obj[:service_name]] = obj[:data_obj].update_daily_forecasts
         end
 
         return results

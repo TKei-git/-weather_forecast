@@ -5,6 +5,9 @@ ruby "3.1.2"
 
 gem 'whenever'
 
+#環境変数を扱う
+gem 'dotenv-rails'
+
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem "rails", "~> 7.0.3"
 

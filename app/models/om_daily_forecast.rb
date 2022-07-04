@@ -1,0 +1,2 @@
+class OmDailyForecast < ApplicationRecord
+end

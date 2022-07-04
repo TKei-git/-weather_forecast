@@ -14,6 +14,10 @@ class UpdateForecastsService
             {
                 service_name: "OpenWeatherMap",
                 data_obj: OpenWeatherMapService.new
+            },
+            {
+                service_name: "OpenMeteo",
+                data_obj: OpenMeteoService.new
             }
         ].each do | obj |
             results[obj[:service_name]] = obj[:data_obj].update_daily_forecasts

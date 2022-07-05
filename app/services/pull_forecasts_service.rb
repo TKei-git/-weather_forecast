@@ -1,29 +1,45 @@
 class PullForecastsService
 
-    def initialize(code)
-        @area_code = code
+    def initialize
+
     end
 
     def pull_data
-        recently = {}
-        weekly   = {}
+        forecasts = {}
 
         [
             {
                 service_name: "気象庁",
-                data_obj: JapanMeteorologicalAgencyService.new(@area_code)
+                data_obj: JapanMeteorologicalAgencyService.new
             },
             {
-                service_name: "ウェザーニュース",
-                data_obj: JapanMeteorologicalAgencyService.new(@area_code)
+                service_name: "OpenWeatherMap",
+                data_obj: OpenWeatherMapService.new
+            },
+            {
+                service_name: "OpenMeteo",
+                data_obj: OpenMeteoService.new
             }
         ].each do | obj |
-            recently[obj[:service_name]] = obj[:data_obj].pull_recently()
-            weekly[obj[:service_name]]   = obj[:data_obj].pull_weekly()
+            forecasts[obj[:service_name]] = obj[:data_obj].pull_daily_forecasts
         end
-
-        return {recently: recently, weekly: weekly}
-        
+        return sort_forecasts(forecasts)
     end
 
+    private
+
+    def sort_forecasts(forecasts)
+        array = []
+        Range.new(Date.current, Date.current + 6).each do |d|
+            object = {
+                date: d,
+                forecasts: []
+            }
+            object[:forecasts].push(forecasts["気象庁"].find {|n| n.date == d }.nil? ? nil : forecasts["気象庁"].find {|n| n.date == d }.forecast)
+            object[:forecasts].push(forecasts["OpenWeatherMap"].find {|n| n.date == d }.nil? ? nil : forecasts["OpenWeatherMap"].find {|n| n.date == d }.forecast)
+            object[:forecasts].push(forecasts["OpenMeteo"].find {|n| n.date == d }.nil? ? nil : forecasts["OpenMeteo"].find {|n| n.date == d }.forecast)
+            array.push(object)
+        end
+        return array
+    end
 end

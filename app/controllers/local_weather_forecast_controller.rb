@@ -1,5 +1,0 @@
-class LocalWeatherForecastController < ApplicationController
-
-
-    
-end

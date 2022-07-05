@@ -8,43 +8,32 @@ class JapanMeteorologicalAgencyService
         @temp_code = "44132"
     end
 
-    def pull_recently
+    def pull_daily_forecasts
         forecasts = []
-
-        records = JmaDetail.where(date: Date.current..)
-
-        records.each do | record |
-            recently_dto = RecentlyForecastDto.new(
+        records = JmaDailyForecast.where(date: Date.current..)
+        records.each do |record|
+            obj = DailyForecastDto.new(
                 record[:date],
-                record[:weather],
-                record[:chance_of_rain_06],
-                record[:chance_of_rain_12],
-                record[:chance_of_rain_18],
-                record[:chance_of_rain_24],
+                "気象庁",
+                record[:weather],     
+                record[:temperature_max],
                 record[:temperature_min],
-                record[:temperature_max]
-            )
-            forecasts.push(recently_dto)
-        end
-        return forecasts
-    end
-
-    def pull_weekly
-        forecasts = []
-
-        records = JmaWeek.where(date: Date.current..)
-
-        records.each do | record |
-            weekly_dto = WeeklyForecastDto.new(
-                record[:date],
-                record[:weather],
+                nil,
+                nil,
+                nil,
                 record[:chance_of_rain],
-                record[:temperature_min],
-                record[:temperature_max]
+                nil,
+                nil,
+                nil,
+                nil,
+                nil,
+                nil,
+                nil,
+                nil
             )
-            forecasts.push(weekly_dto)
+            forecasts.push(obj)
         end
-        return forecasts
+        return merge_daily_detailed_forecasts(forecasts)
     end
 
     def update_daily_forecasts
@@ -135,6 +124,25 @@ class JapanMeteorologicalAgencyService
             hash[time] = values[i]
         end
         return hash
+    end
+
+    def merge_daily_detailed_forecasts(forecasts)
+        records = JmaDailyDetailedForecast.where(date: Date.current..)
+        records.each do |record|
+            obj = forecasts.find {|n| n.date == record[:date] }.forecast
+            obj[:wind]            = record[:wind]
+            obj[:wave]            = record[:wave]
+            obj[:temperature_max] = record[:temperature_max] if obj[:temperature_max].nil?
+            obj[:temperature_min] = record[:temperature_min] if obj[:temperature_min].nil?
+            if obj[:chance_of_rain].nil?
+                pop06 = record[:chance_of_rain_06].nil? ? "-" : record[:chance_of_rain_06].to_s
+                pop12 = record[:chance_of_rain_12].nil? ? "-" : record[:chance_of_rain_12].to_s
+                pop18 = record[:chance_of_rain_18].nil? ? "-" : record[:chance_of_rain_18].to_s
+                pop24 = record[:chance_of_rain_24].nil? ? "-" : record[:chance_of_rain_24].to_s
+                obj[:chance_of_rain]  = pop06 + "/" + pop12 + "/" + pop18 + "/" + pop24
+            end
+        end
+        return forecasts
     end
 end
 

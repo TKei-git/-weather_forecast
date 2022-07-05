@@ -6,7 +6,31 @@ class OpenWeatherMapService
     end
 
     def pull_daily_forecasts
-
+        forecasts = []
+        records = OwmDailyForecast.where(dt: Date.current..)
+        records.each do |record|
+            obj = DailyForecastDto.new(
+                record[:dt],
+                "OpenWeatherMap",
+                record[:weather_description],     
+                record[:temp_max],
+                record[:temp_min],
+                nil,
+                nil,
+                record[:humidity],
+                record[:pop],
+                record[:rain],
+                nil,
+                nil,
+                record[:wind_speed],
+                record[:wind_deg],
+                nil,
+                record[:sunrise],
+                record[:sunset]
+            )
+            forecasts.push(obj)
+        end
+        return forecasts
     end
 
     def update_daily_forecasts

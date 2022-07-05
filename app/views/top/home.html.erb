@@ -1,7 +1,4 @@
-<h1>天気予報比較サイトホーム</h1>
-<p>このサイトでは、異なる情報源の天気予報を比較することができます。</p>
-<%= form_with url: "/forecasts", method: :get do |form| %>
-    <%= form.label "対象地域:" %>
-    <%= form.select :area_code, @regions, { selected: 130000 } %>
-    <%= form.submit "天気予報を表示" %>
-<% end %>
+<h1>東京の天気予報</h1>
+<p>異なる情報源の天気予報をJSONで取得することができます。</p>
+<%= button_to "天気予報を表示", {controller: 'forecasts', action: 'index'}, {method: :get} %>
+

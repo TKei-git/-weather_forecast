@@ -11,26 +11,6 @@
 # It's strongly recommended that you check this file into your version control system.
 
 ActiveRecord::Schema[7.0].define(version: 2022_07_04_083045) do
-  create_table "japan_meteorological_agencies", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
-    t.date "date"
-    t.string "weather"
-    t.string "wind"
-    t.string "wave"
-    t.float "temperature_min"
-    t.float "temperature_max"
-    t.integer "chance_of_rain_06"
-    t.integer "chance_of_rain_12"
-    t.integer "chance_of_rain_18"
-    t.integer "chance_of_rain_24"
-    t.string "provider"
-    t.string "area"
-    t.string "prefecture"
-    t.string "district"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.integer "chance_of_rain"
-  end
-
   create_table "jma_daily_detailed_forecasts", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.date "date"
     t.string "weather_code"
@@ -64,22 +44,6 @@ ActiveRecord::Schema[7.0].define(version: 2022_07_04_083045) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "jma_details", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
-    t.date "date"
-    t.string "area_code"
-    t.string "weather"
-    t.string "wind"
-    t.string "wave"
-    t.integer "chance_of_rain_06"
-    t.integer "chance_of_rain_12"
-    t.integer "chance_of_rain_18"
-    t.integer "chance_of_rain_24"
-    t.float "temperature_max"
-    t.float "temperature_min"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
   create_table "jma_weather_codes", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "weather_code"
     t.string "day_image"
@@ -91,22 +55,10 @@ ActiveRecord::Schema[7.0].define(version: 2022_07_04_083045) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "jma_weeks", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
-    t.date "date"
-    t.string "area_code"
-    t.string "weather"
-    t.integer "chance_of_rain"
-    t.string "reliability"
-    t.float "temperature_max"
-    t.float "temperature_min"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
   create_table "om_daily_forecasts", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.date "time"
-    t.time "sunrise"
-    t.time "sunset"
+    t.datetime "sunrise"
+    t.datetime "sunset"
     t.float "weathercode"
     t.float "temperature_2m_max"
     t.float "temperature_2m_min"
@@ -126,10 +78,10 @@ ActiveRecord::Schema[7.0].define(version: 2022_07_04_083045) do
 
   create_table "owm_daily_forecasts", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.date "dt"
-    t.time "sunrise"
-    t.time "sunset"
-    t.time "moonrise"
-    t.time "moonset"
+    t.datetime "sunrise"
+    t.datetime "sunset"
+    t.datetime "moonrise"
+    t.datetime "moonset"
     t.float "moon_phase"
     t.float "temp_day"
     t.float "temp_min"

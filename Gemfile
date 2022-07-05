@@ -3,6 +3,8 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 ruby "3.1.2"
 
+gem 'rspec-rails'
+
 gem 'whenever'
 
 #環境変数を扱う

@@ -5,9 +5,10 @@ Rails.application.routes.draw do
   # root "articles#index"
   root 'top#home'
 
-  get  'forecasts',  to: 'forecasts#index'
-  #get 'forecasts',  to: 'forecasts#update'
+  get  'forecasts', to: 'forecasts#index'
+  #get 'forecasts', to: 'forecasts#update'
 
-  get  '/api/v1/jma/district/detail', to: 'local_weather_forecast#index'
+  get  '/api/v1/forecasts', to: 'forecasts#index'
+  get  '/api/v1/forecasts/:service', to: 'forecasts#show'
 
 end

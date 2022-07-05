@@ -1,4 +1,14 @@
 <h1>東京の天気予報</h1>
 <p>異なる情報源の天気予報をJSONで取得することができます。</p>
-<%= button_to "天気予報を表示", {controller: 'forecasts', action: 'index'}, {method: :get} %>
-
+<%= link_to '/api/v1/forecasts' do %>
+  <p>全サービスのデータを表示</p>
+<% end %>
+<%= link_to '/api/v1/forecasts/jma' do %>
+  <p>気象庁のデータのみ表示</p>
+<% end %>
+<%= link_to '/api/v1/forecasts/owm' do %>
+  <p>OpenWeatherMapのデータのみ表示</p>
+<% end %>
+<%= link_to '/api/v1/forecasts/om' do %>
+  <p>OpenMeteoのデータのみ表示</p>
+<% end %>

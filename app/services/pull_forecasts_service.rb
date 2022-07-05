@@ -26,6 +26,29 @@ class PullForecastsService
         return sort_forecasts(forecasts)
     end
 
+    def pull_one_service_data(service)
+        forecasts = {}
+        case service
+        when "jma" then
+            obj = {
+                service_name: "気象庁",
+                data_obj: JapanMeteorologicalAgencyService.new
+            }
+        when "owm" then
+            obj = {
+                service_name: "OpenWeatherMap",
+                data_obj: OpenWeatherMapService.new
+            }
+        when "om" then    
+            obj = {
+                service_name: "OpenMeteo",
+                data_obj: OpenMeteoService.new
+            }
+        end
+        forecasts[obj[:service_name]] = obj[:data_obj].pull_daily_forecasts
+        return forecasts
+    end
+
     private
 
     def sort_forecasts(forecasts)

@@ -1,5 +1,7 @@
 FROM ruby:3.1
 
+#ENV RAILS_ENV=production
+
 RUN mkdir /myapp
 WORKDIR /myapp
 COPY Gemfile /myapp/
@@ -15,6 +17,10 @@ RUN apt-get update -qq && \
 
 ENTRYPOINT ["entrypoint.sh"]
 EXPOSE 3000
+
+#COPY start.sh /start.sh
+#RUN chmod 744 /start.sh
+#CMD ["sh", "/start.sh"]
 
 # Start the main process.
 CMD ["rails", "server", "-b", "0.0.0.0"]

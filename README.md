@@ -1,24 +1,33 @@
-# README
+# 天気予報比較アプリケーション
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+## URL
+    https://weather-forecast-rails-app.herokuapp.com
 
-Things you may want to cover:
+## 概要
+    複数社の天気予報をまとめてJsonで確認できます。
+    各社の天気予報をAPIで取得しDBに保存しておく。
+    アプリケーションアクセス時に、各社の天気予報をまとめてJsonで返すアプリケーションです。
+    ※地域は東京限定です。フロントは実装しておりません。
 
-* Ruby version
+## 作成目的
+    自分自身が天気予報を見る際、複数社の天気予報を比較することがあったので、最初から一覧で確認できたら便利だなと思い、作成しました。
 
-* System dependencies
+## 機能一覧
+    データ取得機能（バッチ処理）
+        ・各社の天気予報をAPIで取得
+        ・テーブルに保存できるようにデータの整形、テーブルへ保存
+    データの出力機能
+        ・各社の天気予報をテーブルから取得
+        ・出力形式へデータの整形（異なるテーブルからアウトプットの型を揃える）
 
-* Configuration
+## 使用している技術
+    ruby 3.1.2
+    rails 7.0.3
+    Mysql 8.0.29
+    RSpec
+    Docker-compose
+    Heroku 7.60.2
 
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+## 頑張ったところ
+    脱ファットコントローラー/ファットモデル、複数モデルを扱う処理をどこに書くべきかなどを考え実装した点です。
+    ユースケース処理を独自のServiceクラスに書いたり、出力データ形式を揃える為のデータ格納オブジェクトクラスを作成することで対応しました。
